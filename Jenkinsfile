@@ -2,45 +2,50 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'Nodejs'  // Ensure this matches the Node.js tool name in Jenkins
+        nodejs 'Nodejs' // Replace 'Nodejs' with the exact name of your Node.js installation in Jenkins
     }
 
     environment {
-        PATH = "${tool 'Nodejs'}/bin:${env.PATH}"  // Corrected to match the Node.js installation name
+        SONAR_SCANNER_HOME = tool 'sonarqube' // Replace with the name of your SonarScanner tool in Jenkins
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout the code from the GitHub repository
-                git url: 'https://github.com/kavyaramesh18/MERN.git', branch: 'main'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                // Install dependencies using npm (Windows-specific command)
                 bat 'npm install'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Use the SonarQube token stored in Jenkins credentials
                 withCredentials([string(credentialsId: 'mern', variable: 'SONAR_TOKEN')]) {
-                    // Run SonarQube analysis using the token
-                    bat 'sonar-scanner.bat -D"sonar.projectKey=MERN" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000" -D"sonar.token=${SONAR_TOKEN}"'
+                    bat """
+                    ${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat ^
+                      -Dsonar.projectKey=MERN ^
+                      -Dsonar.sources=. ^
+                      -Dsonar.host.url=http://localhost:9000 ^
+                      -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
     }
 
     post {
+        always {
+            echo 'Pipeline execution finished.'
+        }
         success {
-            echo 'Build and SonarQube analysis completed successfully!'
+            echo 'Pipeline executed successfully.'
         }
         failure {
-            echo 'Build or analysis failed.'
+            echo 'Pipeline failed.'
         }
     }
 }
