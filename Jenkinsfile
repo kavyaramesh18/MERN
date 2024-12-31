@@ -3,11 +3,10 @@ pipeline {
 
     tools {
         nodejs 'Nodejs'  // Ensure this matches the Node.js tool name in Jenkins
-    
     }
 
     environment {
-        PATH = "${tool 'NodeJS 14'}/bin:${env.PATH}"  // Ensures Node.js is available in the path
+        PATH = "${tool 'Nodejs'}/bin:${env.PATH}"  // Corrected to match the Node.js installation name
     }
 
     stages {
