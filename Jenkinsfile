@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'Nodejs' // Replace 'Nodejs' with the exact name of your Node.js installation in Jenkins
+        nodejs 'Nodejs' // Replace with your Node.js installation name in Jenkins
     }
 
     environment {
-        SONAR_SCANNER_HOME = tool 'sonarqube' // Replace with the name of your SonarScanner tool in Jenkins
+        SONAR_SCANNER_HOME = tool 'sonarqube' // Replace with your SonarScanner tool name in Jenkins
     }
 
     stages {
@@ -18,19 +18,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                // Install dependencies using npm
                 bat 'npm install'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'mern', variable: 'SONAR_TOKEN')]) {
+                // Pass SonarQube credentials securely
+                withCredentials([string(credentialsId: 'mern1', variable: 'SONAR_TOKEN')]) {
                     bat """
                     ${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat ^
                       -Dsonar.projectKey=MERN ^
                       -Dsonar.sources=. ^
                       -Dsonar.host.url=http://localhost:9000 ^
-                      -Dsonar.login=${SONAR_TOKEN}
+                      -Dsonar.login=%%SONAR_TOKEN%% ^
+                      -X
                     """
                 }
             }
