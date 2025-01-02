@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = tool 'sonarqube' // Replace with your SonarScanner tool name in Jenkins
+        SONAR_SCANNER_OPTS = "-Xmx2048m" // Increase memory allocation
     }
 
     stages {
@@ -18,21 +19,19 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // Install dependencies using npm
                 bat 'npm install'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Pass SonarQube credentials securely
                 withCredentials([string(credentialsId: 'mern1', variable: 'SONAR_TOKEN')]) {
                     bat """
-                    ${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat ^
+                    "${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat" ^
                       -Dsonar.projectKey=MERN ^
                       -Dsonar.sources=. ^
                       -Dsonar.host.url=http://localhost:9000 ^
-                      -Dsonar.login=%%SONAR_TOKEN%% ^
+                      -Dsonar.login=%SONAR_TOKEN% ^
                       -X
                     """
                 }
